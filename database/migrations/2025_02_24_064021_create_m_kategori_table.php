@@ -7,14 +7,16 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
     public function up(): void
     {
         Schema::create('m_kategori', function (Blueprint $table) {
-            $table->id();
+            $table->id('kategori_id'); // Primary Key
+            $table->string('kategori_kode', 10);
+            $table->string('kategori_nama', 100);
             $table->timestamps();
-        });
+        });        
     }
 
     /**
