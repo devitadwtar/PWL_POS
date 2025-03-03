@@ -11,10 +11,9 @@ class UserController extends Controller
 { 
     public function index() 
     {  
+
         // Ambil semua data user
-        $user = UserModel::findOr(20, ['username', 'nama'], function(){
-            abort(404);
-        }); 
+        $user = UserModel::where('username', 'manager')->firstOrFail();
 
         // Tampilkan ke view
         return view('user', ['data' => $user]); 
