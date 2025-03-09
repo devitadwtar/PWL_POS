@@ -24,6 +24,5 @@
     @else
         <p>Tidak ada data level pengguna.</p>
     @endif
-
 </body>
 </html>
