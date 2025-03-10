@@ -33,3 +33,5 @@ Route::get('/user/hapus/{id}', [UserController::class, 'hapus']);
 
 //prak 5
 Route::get('/kategori', [KategoriController::class, 'index']);
+Route::get('/kategori/create', [KategoriController::class, 'create']);
+Route::Post('/kategori', [KategoriController::class, 'store']);
