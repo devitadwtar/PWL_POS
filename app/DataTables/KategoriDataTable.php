@@ -3,12 +3,14 @@
 namespace App\DataTables;
 
 use App\Models\KategoriModel;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder; use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder; use Yajra\DataTables\Html\Button;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder; 
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder; 
+use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor; use 
-Yajra\DataTables\Html\Editor\Fields; use 
-Yajra\DataTables\Services\DataTable;
+use Yajra\DataTables\Html\Editor\Editor; 
+use Yajra\DataTables\Html\Editor\Fields; 
+use Yajra\DataTables\Services\DataTable;
 
 class KategoriDataTable extends DataTable
 {
