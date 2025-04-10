@@ -1,18 +1,20 @@
-<?php 
+<?php
 
-namespace App\Models; 
+namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model; 
-use Illuminate\Database\Eloquent\Relations\HasMany; 
+use Illuminate\Database\Eloquent\Model;
 
-class KategoriModel extends Model 
-{ 
-    protected $table = 'm_kategori'; 
-    protected $primaryKey = 'kategori_id'; 
-    protected $fillable = ['kategori_kode', 'kategori_nama']; 
+class KategoriModel extends Model
+{
+    // Menentukan nama tabel
+    protected $table = 'm_kategori';
 
-    public function barang(): HasMany 
-    { 
-        return $this->hasMany(BarangModel::class, 'kategori_id', 'kategori_id'); 
-    } 
+    // Menentukan primary key
+    protected $primaryKey = 'kategori_id';
+
+    // Kolom yang boleh diisi
+    protected $fillable = ['kategori_kode', 'kategori_nama'];
+
+    // Menonaktifkan timestamps
+    public $timestamps = false;
 }

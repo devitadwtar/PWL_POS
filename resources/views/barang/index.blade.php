@@ -40,7 +40,7 @@
       processing: true,
       serverSide: true,
       ajax: {
-        url: '{{ url("/barang/list") }}',
+        url: '{{ url("barang/list") }}',
         type: 'POST',
         headers: {
           'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -53,7 +53,7 @@
         { data: 'harga_beli' },
         { data: 'harga_jual' },
         { data: 'kategori_nama' },
-        { data: 'aksi', orderable: false, searchable: false },
+        { data: 'aksi', orderable: false, searchable: false }
       ]
     });
   });
