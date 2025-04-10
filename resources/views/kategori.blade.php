@@ -24,6 +24,5 @@
     @else
         <p>Tidak ada data kategori barang.</p>
     @endif
-
 </body>
 </html>

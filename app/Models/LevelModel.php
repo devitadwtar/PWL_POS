@@ -7,13 +7,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LevelModel extends Model
 {
-    protected $table = 'm_level'; // Pastikan ini sesuai dengan nama tabel di database
+    // Nama tabel dalam database
+    protected $table = 'm_level';
 
-    protected $fillable = ['level_nama'];
+    // Nama kolom primary key dalam tabel
+    protected $primaryKey = 'level_id';
 
+    // Kolom-kolom yang boleh diisi secara massal
+    protected $fillable = ['level_kode', 'level_nama'];
+
+    // Relasi one-to-many ke tabel user (jika ada)
     public function users(): HasMany
     {
-        return $this->hasMany(UserModel::class, 'level_id', 'id'); 
-        // level_id ada di tabel users, bukan di tabel levels
+        return $this->hasMany(UserModel::class, 'level_id', 'level_id');
     }
 }

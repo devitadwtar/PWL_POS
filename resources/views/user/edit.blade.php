@@ -81,7 +81,6 @@
     @endempty 
   </div> 
 </div> 
-
 @endsection 
  
 @push('css') 
