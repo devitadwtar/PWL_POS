@@ -4,9 +4,10 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\BarangController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\BarangController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -45,15 +46,17 @@ Route::get('/user/hapus/{id}', [UserController::class, 'hapus']);
 //prak 5 revisi
 Route::get('/', [WelcomeController::class, 'index']); 
 
-Route::group(['prefix' => 'user'], function () {
-    Route::get('/', [UserController::class, 'index']);              // menampilkan halaman awal user
-    Route::post('/list', [UserController::class, 'list']);          // menampilkan data user dalam bentuk json untuk datatables
-    Route::get('/create', [UserController::class, 'create']);       // menampilkan halaman form tambah user
-    Route::post('/', [UserController::class, 'store']);             // menyimpan data user baru
-    Route::get('/{id}', [UserController::class, 'show']);           // menampilkan detail user
-    Route::get('/{id}/edit', [UserController::class, 'edit']);      // menampilkan halaman form edit user
-    Route::put('/{id}', [UserController::class, 'update']);         // menyimpan perubahan data user
-    Route::delete('/{id}', [UserController::class, 'destroy']);     // menghapus data user
+Route::group(['prefix' => 'user'], function () { 
+    Route::get('/', [UserController::class, 'index']); // Menampilkan halaman awal user
+    Route::post('/list', [UserController::class, 'list']); // Menampilkan data user dalam bentuk json untuk DataTables
+    Route::get('/create', [UserController::class, 'create']); // Menampilkan halaman form tambah user
+    Route::post('/', [UserController::class, 'store']); // Menyimpan data user baru
+    Route::get('/create_ajax', [UserController::class, 'create_ajax']); // Menampilkan halaman form tambah user dengan AJAX
+    Route::post('/ajax', [UserController::class, 'store_ajax']); // Menyimpan data user baru dengan AJAX
+    Route::get('/{id}', [UserController::class, 'show']); // Menampilkan detail user
+    Route::get('/{id}/edit', [UserController::class, 'edit']); // Menampilkan halaman form edit user
+    Route::put('/{id}', [UserController::class, 'update']); // Menyimpan perubahan data user
+    Route::delete('/{id}', [UserController::class, 'destroy']); // Menghapus data user
 });
 
 Route::prefix('level')->group(function () {
@@ -68,15 +71,16 @@ Route::prefix('level')->group(function () {
 });
 
 Route::prefix('kategori')->group(function () {
-    Route::get('/', [KategoriController::class, 'index']);
-    Route::post('/list', [KategoriController::class, 'list']); // ← untuk datatables
-    Route::get('/create', [KategoriController::class, 'create']);
-    Route::post('/', [KategoriController::class, 'store']);
-    Route::get('/{id}', [KategoriController::class, 'show']);
-    Route::get('/{id}/edit', [KategoriController::class, 'edit']);
-    Route::put('/{id}', [KategoriController::class, 'update']);
-    Route::delete('/{id}', [KategoriController::class, 'destroy']);
+    Route::get('/', [KategoriController::class, 'index'])->name('kategori.index');  // Rute dengan nama kategori.index
+    Route::post('/list', [KategoriController::class, 'list'])->name('kategori.list');
+    Route::get('/create', [KategoriController::class, 'create'])->name('kategori.create');
+    Route::post('/', [KategoriController::class, 'store'])->name('kategori.store');
+    Route::get('/{id}', [KategoriController::class, 'show'])->name('kategori.show');
+    Route::get('/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
+    Route::put('/{id}', [KategoriController::class, 'update'])->name('kategori.update');
+    Route::delete('/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
 });
+
 
 Route::prefix('barang')->group(function () {
     Route::get('/', [BarangController::class, 'index']);

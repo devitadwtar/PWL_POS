@@ -53,7 +53,23 @@
         { data: 'harga_beli' },
         { data: 'harga_jual' },
         { data: 'kategori_nama' },
-        { data: 'aksi', orderable: false, searchable: false }
+        { 
+          data: 'aksi', 
+          orderable: false, 
+          searchable: false,
+          render: function(data, type, row) {
+            // Susun tombol Detail, Edit, Hapus
+            return `
+              <a href="{{ url('barang') }}/${row.barang_id}" class="btn btn-sm btn-info">Detail</a>
+              <a href="{{ url('barang') }}/${row.barang_id}/edit" class="btn btn-sm btn-warning">Edit</a>
+              <form action="{{ url('barang') }}/${row.barang_id}" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Hapus</button>
+              </form>
+            `;
+          }
+        }
       ]
     });
   });
