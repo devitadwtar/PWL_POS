@@ -19,7 +19,7 @@
                 </div>
                 <div class="form-group">
                     <label>No Telepon</label>
-                    <input type="text" name="no_telp" class="form-control" required>
+                    <input type="text" name="telepon" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-success">Simpan</button>
                 <a href="{{ url('supplier') }}" class="btn btn-secondary">Kembali</a>
