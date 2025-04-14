@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\LevelModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -180,4 +181,53 @@ class UserController extends Controller
             return redirect('/user')->with('error', 'Data user gagal dihapus karena masih terdapat data terkait.');
         }
     }
+    public function create_ajax() 
+    { 
+        // Ambil semua level untuk ditampilkan di form
+        $level = LevelModel::select('level_id', 'level_nama')->get(); 
+        return view('user.create_ajax')->with('level', $level); 
+    }
+    
+    public function store_ajax(Request $request) 
+    {
+        // Cek apakah request adalah AJAX atau ingin JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            // Validasi input
+            $rules = [
+                'level_id' => 'required|integer',
+                'username' => 'required|string|min:3|max:20|unique:m_user,username',
+                'nama'     => 'required|string|max:100',
+                'password' => 'required|string|min:6|max:20',
+            ];
+    
+            $validator = Validator::make($request->all(), $rules);
+    
+            // Kalau gagal validasi
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'   => false,
+                    'message'  => 'Validasi Gagal',
+                    'msgField' => $validator->errors(),
+                ]);
+            }
+    
+            // Simpan data user
+            $user = new UserModel;
+            $user->level_id = $request->level_id;
+            $user->username = $request->username;
+            $user->nama     = $request->nama;
+            $user->password = bcrypt($request->password); // selalu hash password!
+            $user->save();
+    
+            // Kirim respon sukses
+            return response()->json([
+                'status'  => true,
+                'message' => 'Data user berhasil disimpan',
+            ]);
+        }
+    
+        // Kalau bukan AJAX, redirect
+        return redirect('/user')->with('error', 'Permintaan tidak valid');
+    }
+    
 }

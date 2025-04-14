@@ -68,6 +68,7 @@
       });
     }
 
+    var dataUser;
     $(document).ready(function() {
       // Initialize DataTable
       var dataUser = $('#table_user').DataTable({
