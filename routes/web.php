@@ -7,7 +7,7 @@ use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\BarangController;
-
+use App\Models\KategoriModel;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,10 +84,16 @@ Route::prefix('kategori')->group(function () {
     Route::get('/', [KategoriController::class, 'index'])->name('kategori.index');  // Rute dengan nama kategori.index
     Route::post('/list', [KategoriController::class, 'list'])->name('kategori.list');
     Route::get('/create', [KategoriController::class, 'create'])->name('kategori.create');
+    Route::get('/create_ajax', [kategoriController::class, 'create_ajax']); // Menampilkan form tambah user dengan modal AJAX
+    Route::post('/ajax', [KategoriController::class, 'store_ajax']); // Menyimpan data user baru lewat AJAX (respon JSON)
     Route::post('/', [KategoriController::class, 'store'])->name('kategori.store');
     Route::get('/{id}', [KategoriController::class, 'show'])->name('kategori.show');
     Route::get('/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
     Route::put('/{id}', [KategoriController::class, 'update'])->name('kategori.update');
+    Route::get('/{id}/edit_ajax', [KategoriController::class, 'edit_ajax']); // Menampilkan halaman form edit user Ajax 
+    Route::put('/{id}/update_ajax', [KategoriController::class, 'update_ajax']); // Menyimpan perubahan data user Ajax
+    Route::get('/{id}/delete_ajax', [KategoriController::class, 'confirm_ajax']); // Untuk tampilkan form confirm delete user Ajax 
+    Route::delete('/{id}/delete_ajax', [KategoriController::class, 'delete_ajax']); // Untuk hapus data user Ajax
     Route::delete('/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
 });
 

@@ -5,7 +5,8 @@
   <div class="card-header">
     <h3 class="card-title">{{ $page->title }}</h3>
     <div class="card-tools">
-      <a href="{{ url('kategori/create') }}" class="btn btn-primary btn-sm">Tambah</a>
+      <a href="{{ url('kategori/create') }}" class="btn btn-sm btn-primary">Tambah</a>
+      <button onclick="modalAction('{{ url('kategori/create_ajax') }}')" class="btn btn-sm btn-success">Tambah Ajax</button>
     </div>
   </div>
   <div class="card-body">
@@ -20,38 +21,53 @@
       <thead>
         <tr>
           <th>No</th>
-          <th>Kategori ID</th>
-          <th>Kategori Kode</th>
-          <th>Kategori Nama</th>
+          <th>Kode Kategori</th>
+          <th>Nama Kategori</th>
           <th>Aksi</th>
         </tr>
       </thead>
     </table>
   </div>
 </div>
+
+<!-- Modal untuk create/edit -->
+<div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
 @push('js')
 <script>
+  // Fungsi load modal
+  function modalAction(url = '') {
+    $('#myModal').load(url, function () {
+      $('#myModal').modal('show');
+    });
+  }
+
+  // Inisialisasi DataTable
+  var dataKategori;
   $(function () {
-    $('#table_kategori').DataTable({
+    dataKategori = $('#table_kategori').DataTable({
       processing: true,
       serverSide: true,
       ajax: {
-        url: '{{ url("/kategori/list") }}',
+        url: "{{ url('/kategori/list') }}",
         type: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        data: {
+          _token: '{{ csrf_token() }}'
         }
       },
       columns: [
         { data: 'DT_RowIndex', orderable: false, searchable: false },
-        { data: 'kategori_id' },
         { data: 'kategori_kode' },
         { data: 'kategori_nama' },
-        { data: 'aksi', orderable: false, searchable: false },
+        { data: 'aksi', orderable: false, searchable: false }
       ]
     });
   });
+
+  // Fungsi reload (kalau dibutuhkan setelah save)
+  function reloadKategoriTable() {
+    if (dataKategori) dataKategori.ajax.reload();
+  }
 </script>
 @endpush
