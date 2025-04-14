@@ -235,6 +235,7 @@ class UserController extends Controller
         // Kalau bukan AJAX, redirect
         return redirect('/user')->with('error', 'Permintaan tidak valid');
     }
+    
     // Menampilkan halaman form edit user ajax
     public function edit_ajax(string $id)
     {
