@@ -14,11 +14,14 @@ use Illuminate\Support\Facades\Auth;
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::get('/register', [AuthController::class, 'register'])->name('register.form');
+Route::post('/register', [AuthController::class, 'store_user'])->name('register.store');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [WelcomeController::class, 'index']);
 
-    Route::prefix('user')->group(function () {
+    Route::middleware(['authorize:ADM'])->prefix('user')->group(function (){
+    //Route::prefix('user')->group(function () {
         Route::get('/', [UserController::class, 'index']);
         Route::post('/list', [UserController::class, 'list']);
         Route::get('/create', [UserController::class, 'create']);
@@ -35,8 +38,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy']);
     });
     
-    Route::middleware(['authorize:ADM'])->group(function () {
-    // Route::prefix('level')->group(function () {
+    Route::middleware(['authorize:ADM'])->prefix('level')->group(function () {
+    //Route::prefix('level')->group(function () {
         Route::get('/', [LevelController::class, 'index']);
         Route::post('/list', [LevelController::class, 'list']);
         Route::get('/create', [LevelController::class, 'create']);
@@ -53,7 +56,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [LevelController::class, 'destroy']);
     });
 
-    Route::prefix('kategori')->group(function () {
+    Route::middleware(['authorize:ADM,KSR'])->prefix('kategori')->group(function (){
+    //Route::prefix('kategori')->group(function () {
         Route::get('/', [KategoriController::class, 'index'])->name('kategori.index');
         Route::post('/list', [KategoriController::class, 'list'])->name('kategori.list');
         Route::get('/create', [KategoriController::class, 'create'])->name('kategori.create');
@@ -70,7 +74,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
     });
 
-    Route::prefix('barang')->group(function () {
+    Route::middleware(['authorize:ADM,MNG'])->prefix('barang')->group(function (){
+    //Route::prefix('barang')->group(function () {
         Route::get('/', [BarangController::class, 'index']);
         Route::post('/list', [BarangController::class, 'list']);
         Route::get('/create', [BarangController::class, 'create']);
@@ -87,7 +92,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [BarangController::class, 'destroy']);
     });
 
-    Route::prefix('supplier')->group(function () {
+    Route::middleware(['authorize:ADM,MNG'])->prefix('supplier')->group(function (){
+    //Route::prefix('supplier')->group(function () {
         Route::get('/', [SupplierController::class, 'index']);
         Route::post('/list', [SupplierController::class, 'list']);
         Route::get('/create', [SupplierController::class, 'create']);
