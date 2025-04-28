@@ -69,6 +69,18 @@
           <i class="nav-icon fas fa-cash-register"></i> 
           <p>Transaksi Penjualan</p> 
         </a> 
+        <li class="nav-header">Akun</li> 
+        <li class="nav-item">
+          <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+              @csrf
+          </form>
+      
+          <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+              <i class="nav-icon fas fa-sign-out-alt"></i>
+              <p>Logout</p>
+          </a>
+      </li>      
+      </li>      
       </li> 
     </ul> 
   </nav> 
