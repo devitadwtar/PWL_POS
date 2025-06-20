@@ -6,10 +6,10 @@ use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class KategoriController extends Controller
 {
-    // Menampilkan halaman index kategori
     public function index()
     {
         $breadcrumb = (object) [
@@ -23,47 +23,31 @@ class KategoriController extends Controller
         return view('kategori.index', compact('breadcrumb', 'page', 'activeMenu'));
     }
 
-    // KategoriController.php
     public function list(Request $request) 
     {
-        // Mengambil data kategori dengan relasi jika diperlukan (misalnya relasi dengan tabel lain)
         $kategori = KategoriModel::select('kategori_id', 'kategori_kode', 'kategori_nama');
 
-        // Filter berdasarkan kategori_id jika ada
         if ($request->kategori_id) {
             $kategori->where('kategori_id', $request->kategori_id);
         }
 
-        // Mengembalikan data dalam format JSON untuk DataTables
         return DataTables::of($kategori)
-            ->addIndexColumn()  // Menambahkan kolom index (DT_RowIndex) 
-            ->addColumn('aksi', function ($kategori) {  // Menambahkan kolom aksi
-                // Tombol aksi untuk detail, edit, dan hapus kategori
+            ->addIndexColumn()
+            ->addColumn('aksi', function ($kategori) {
                 $btn  = '<button onclick="modalAction(\''.url('/kategori/' . $kategori->kategori_id . '/show_ajax').'\')" class="btn btn-info btn-sm">Detail</button> ';
                 $btn .= '<button onclick="modalAction(\''.url('/kategori/' . $kategori->kategori_id . '/edit_ajax').'\')" class="btn btn-warning btn-sm">Edit</button> ';
                 $btn .= '<button onclick="modalAction(\''.url('/kategori/' . $kategori->kategori_id . '/delete_ajax').'\')" class="btn btn-danger btn-sm">Hapus</button> ';
-
-                return $btn; 
+                return $btn;
             })
-            ->rawColumns(['aksi'])  // Menandakan bahwa kolom aksi adalah HTML
+            ->rawColumns(['aksi'])
             ->make(true);
     }
 
-    // Menampilkan form untuk membuat kategori baru
     public function create()
     {
-        $breadcrumb = (object) [
-            'title' => 'Tambah Kategori',
-            'list' => ['Home', 'Kategori', 'Tambah']
-        ];
-
-        $page = (object) ['title' => 'Tambah kategori baru'];
-        $activeMenu = 'kategori';
-
-        return view('kategori.create', compact('breadcrumb', 'page', 'activeMenu'));
+        return view('kategori.create');
     }
 
-    // Menyimpan kategori baru
     public function store(Request $request)
     {
         $request->validate([
@@ -76,41 +60,18 @@ class KategoriController extends Controller
         return redirect()->route('kategori.index')->with('success', 'Kategori berhasil disimpan.');
     }
 
-    // Menampilkan detail kategori
     public function show($id)
     {
-        // Ambil data kategori berdasarkan ID
         $kategori = KategoriModel::findOrFail($id);
-
-        // Breadcrumb dan halaman
-        $breadcrumb = (object) [
-            'title' => 'Detail Kategori',
-            'list' => ['Home', 'Kategori', 'Detail']
-        ];
-
-        $page = (object) ['title' => 'Detail Kategori'];
-        $activeMenu = 'kategori';
-
-        return view('kategori.show', compact('kategori', 'breadcrumb', 'page', 'activeMenu'));
+        return view('kategori.show', compact('kategori'));
     }
 
-    // Menampilkan form untuk mengedit kategori
     public function edit($id)
     {
         $kategori = KategoriModel::findOrFail($id);
-
-        $breadcrumb = (object) [
-            'title' => 'Edit Kategori',
-            'list' => ['Home', 'Kategori', 'Edit']
-        ];
-
-        $page = (object) ['title' => 'Edit kategori'];
-        $activeMenu = 'kategori';
-
-        return view('kategori.edit', compact('kategori', 'breadcrumb', 'page', 'activeMenu'));
+        return view('kategori.edit', compact('kategori'));
     }
 
-    // Mengupdate kategori
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -124,7 +85,6 @@ class KategoriController extends Controller
         return redirect()->route('kategori.index')->with('success', 'Kategori berhasil diperbarui.');
     }
 
-    // Menghapus kategori
     public function destroy($id)
     {
         $kategori = KategoriModel::findOrFail($id);
@@ -132,129 +92,173 @@ class KategoriController extends Controller
 
         return redirect()->route('kategori.index')->with('success', 'Kategori berhasil dihapus.');
     }
-        // Menampilkan form tambah kategori AJAX
-        public function create_ajax()
-        {
-            return view('kategori.create_ajax');
-        }
-    
-        // Menyimpan kategori menggunakan AJAX
-        public function store_ajax(Request $request)
-        {
-            // Cek apakah request adalah AJAX atau ingin JSON
-            if ($request->ajax() || $request->wantsJson()) {
-                // Validasi input
-                $rules = [
-                    'kategori_kode' => 'required|string|max:20|unique:m_kategori,kategori_kode',
-                    'kategori_nama' => 'required|string|max:100',
-                ];
-    
-                $validator = Validator::make($request->all(), $rules);
-    
-                // Kalau gagal validasi
-                if ($validator->fails()) {
-                    return response()->json([
-                        'status'   => false,
-                        'message'  => 'Validasi Gagal',
-                        'msgField' => $validator->errors(),
-                    ]);
-                }
-    
-                // Simpan data kategori
-                $kategori = new KategoriModel;
-                $kategori->kategori_kode = $request->kategori_kode;
-                $kategori->kategori_nama = $request->kategori_nama;
-                $kategori->save();
-    
-                // Kirim respon sukses
+
+    // AJAX Create Form
+    public function create_ajax()
+    {
+        return view('kategori.create_ajax');
+    }
+
+    public function store_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'kategori_kode' => 'required|string|max:20|unique:m_kategori,kategori_kode',
+                'kategori_nama' => 'required|string|max:100',
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
                 return response()->json([
-                    'status'  => true,
-                    'message' => 'Data kategori berhasil disimpan',
+                    'status'   => false,
+                    'message'  => 'Validasi Gagal',
+                    'msgField' => $validator->errors(),
                 ]);
             }
-    
-            // Kalau bukan AJAX, redirect
-            return redirect('/kategori')->with('error', 'Permintaan tidak valid');
+
+            KategoriModel::create($request->all());
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Data kategori berhasil disimpan',
+            ]);
         }
-    
-        // Menampilkan halaman form edit kategori AJAX
-        public function edit_ajax(string $id)
-        {
-            $kategori = KategoriModel::find($id);
-            return view('kategori.edit_ajax', ['kategori' => $kategori]);
-        }
-    
-        // Mengupdate kategori menggunakan AJAX
-        public function update_ajax(Request $request, $id)
-        {
-            // Cek apakah request dari AJAX
-            if ($request->ajax() || $request->wantsJson()) {
-                // Validasi input
-                $rules = [
-                    'kategori_kode' => 'required|string|max:20|unique:m_kategori,kategori_kode,' . $id . ',kategori_id',
-                    'kategori_nama' => 'required|string|max:100',
-                ];
-    
-                $validator = Validator::make($request->all(), $rules);
-    
-                // Kalau gagal validasi
-                if ($validator->fails()) {
-                    return response()->json([
-                        'status'   => false,
-                        'message'  => 'Validasi gagal',
-                        'msgField' => $validator->errors(),
-                    ]);
-                }
-    
-                // Mencari kategori berdasarkan ID
-                $kategori = KategoriModel::find($id);
-                if ($kategori) {
-                    $kategori->update($request->all());
-    
-                    return response()->json([
-                        'status'  => true,
-                        'message' => 'Data kategori berhasil diperbarui',
-                    ]);
-                } else {
-                    return response()->json([
-                        'status'  => false,
-                        'message' => 'Data tidak ditemukan',
-                    ]);
-                }
+
+        return redirect('/kategori')->with('error', 'Permintaan tidak valid');
+    }
+
+    public function edit_ajax($id)
+    {
+        $kategori = KategoriModel::find($id);
+        return view('kategori.edit_ajax', ['kategori' => $kategori]);
+    }
+
+    public function update_ajax(Request $request, $id)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'kategori_kode' => 'required|string|max:20|unique:m_kategori,kategori_kode,' . $id . ',kategori_id',
+                'kategori_nama' => 'required|string|max:100',
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'   => false,
+                    'message'  => 'Validasi gagal',
+                    'msgField' => $validator->errors(),
+                ]);
             }
-    
-            return redirect('/');
-        }
-    
-        // Menampilkan halaman konfirmasi hapus kategori AJAX
-        public function confirm_ajax(string $id)
-        {
+
             $kategori = KategoriModel::find($id);
-            return view('kategori.confirm_ajax', ['kategori' => $kategori]);
-        }
-    
-        // Menghapus kategori menggunakan AJAX
-        public function delete_ajax(Request $request, $id)
-        {
-            // Cek apakah request dari AJAX
-            if ($request->ajax() || $request->wantsJson()) {
-                $kategori = KategoriModel::find($id);
-    
-                if ($kategori) {
-                    $kategori->delete();
-    
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Data kategori berhasil dihapus',
-                    ]);
-                } else {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Data kategori tidak ditemukan',
-                    ]);
-                }
+            if ($kategori) {
+                $kategori->update($request->all());
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => 'Data kategori berhasil diperbarui',
+                ]);
+            } else {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Data tidak ditemukan',
+                ]);
             }
-    
-            return redirect('/');
         }
+
+        return redirect('/');
+    }
+
+    public function confirm_ajax($id)
+    {
+        $kategori = KategoriModel::find($id);
+        return view('kategori.confirm_ajax', ['kategori' => $kategori]);
+    }
+
+    public function delete_ajax(Request $request, $id)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $kategori = KategoriModel::find($id);
+
+            if ($kategori) {
+                $kategori->delete();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data kategori berhasil dihapus',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data kategori tidak ditemukan',
+                ]);
+            }
+        }
+
+        return redirect('/');
+    }
+
+    // ==== FITUR IMPORT ====
+    public function import()
+    {
+        return view('kategori.import');
+    }
+
+    public function import_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'file_kategori' => ['required', 'mimes:xlsx', 'max:1024']
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $file = $request->file('file_kategori');
+
+            $reader = IOFactory::createReader('Xlsx');
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, false, true, true);
+
+            $insert = [];
+            if (count($data) > 1) {
+                foreach ($data as $i => $row) {
+                    if ($i > 1) {
+                        $insert[] = [
+                            'kategori_kode' => $row['A'],
+                            'kategori_nama' => $row['B'],
+                            'created_at' => now()
+                        ];
+                    }
+                }
+
+                if (count($insert) > 0) {
+                    KategoriModel::insertOrIgnore($insert);
+                }
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil diimport'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Tidak ada data yang diimport'
+                ]);
+            }
+        }
+
+        return redirect('/');
+    }
 }

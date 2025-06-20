@@ -7,6 +7,7 @@
     <div class="card-tools">
       <a href="{{ url('kategori/create') }}" class="btn btn-sm btn-primary">Tambah</a>
       <button onclick="modalAction('{{ url('kategori/create_ajax') }}')" class="btn btn-sm btn-success">Tambah Ajax</button>
+      <button onclick="modalAction('{{ url('kategori/import') }}')" class="btn btn-sm btn-info">Import Kategori</button>
     </div>
   </div>
   <div class="card-body">
@@ -30,7 +31,7 @@
   </div>
 </div>
 
-<!-- Modal untuk create/edit -->
+<!-- Modal untuk create/edit/import -->
 <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
