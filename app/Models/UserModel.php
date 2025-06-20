@@ -22,7 +22,8 @@ class UserModel extends Authenticatable
         'nama',
         'level_id',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'foto'
     ];
 
     protected $hidden = ['password']; // Menyembunyikan password saat di-serialize
