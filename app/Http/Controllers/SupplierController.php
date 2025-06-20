@@ -7,6 +7,7 @@ use App\Models\SupplierModel;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class SupplierController extends Controller
 {
@@ -210,6 +211,66 @@ class SupplierController extends Controller
         }
         return redirect('/');
     }
+
+public function export_excel()
+{
+    // Ambil data supplier dari database
+    $supplier = SupplierModel::select('supplier_kode', 'supplier_nama', 'alamat', 'telepon')
+        ->orderBy('supplier_kode')
+        ->get();
+
+    // Buat spreadsheet baru dan ambil sheet aktif
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Set header kolom di baris pertama
+    $sheet->setCellValue('A1', 'No');
+    $sheet->setCellValue('B1', 'Kode Supplier');
+    $sheet->setCellValue('C1', 'Nama Supplier');
+    $sheet->setCellValue('D1', 'Alamat');
+    $sheet->setCellValue('E1', 'Telepon');
+
+    // Bold header
+    $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+
+    // Isi data dimulai dari baris ke-2
+    $no = 1;
+    $baris = 2;
+    foreach ($supplier as $value) {
+        $sheet->setCellValue('A' . $baris, $no);
+        $sheet->setCellValue('B' . $baris, $value->supplier_kode);
+        $sheet->setCellValue('C' . $baris, $value->supplier_nama);
+        $sheet->setCellValue('D' . $baris, $value->alamat);
+        $sheet->setCellValue('E' . $baris, $value->telepon);
+
+        $baris++;
+        $no++;
+    }
+
+    // Set lebar kolom otomatis
+    foreach (range('A', 'E') as $columnID) {
+        $sheet->getColumnDimension($columnID)->setAutoSize(true);
+    }
+
+    // Set nama sheet
+    $sheet->setTitle('Data Supplier');
+
+    // Buat writer dan nama file
+    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $filename = 'Data_Supplier_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+    // Set response agar browser langsung download file
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    header('Cache-Control: max-age=0');
+    header('Expires: 0');
+    header('Pragma: public');
+
+    // Simpan file ke output (langsung download)
+    $writer->save('php://output');
+    exit;
+}
+
 
     // IMPORT
 

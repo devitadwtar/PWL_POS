@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class LevelController extends Controller
 {
@@ -61,6 +63,60 @@ class LevelController extends Controller
 
         return redirect('/level')->with('success', 'Data level berhasil disimpan');
     }
+
+public function export_excel()
+{
+    // Ambil data level dari database
+    $level = LevelModel::select('level_kode', 'level_nama')
+        ->orderBy('level_kode')
+        ->get();
+
+    // Buat spreadsheet dan ambil sheet aktif
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Set header di baris pertama
+    $sheet->setCellValue('A1', 'No');
+    $sheet->setCellValue('B1', 'Kode Level');
+    $sheet->setCellValue('C1', 'Nama Level');
+
+    // Bold header
+    $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+
+    // Isi data dari baris ke-2
+    $no = 1;
+    $baris = 2;
+    foreach ($level as $value) {
+        $sheet->setCellValue('A' . $baris, $no);
+        $sheet->setCellValue('B' . $baris, $value->level_kode);
+        $sheet->setCellValue('C' . $baris, $value->level_nama);
+        $baris++;
+        $no++;
+    }
+
+    // Set lebar kolom otomatis
+    foreach (range('A', 'C') as $col) {
+        $sheet->getColumnDimension($col)->setAutoSize(true);
+    }
+
+    // Set nama sheet
+    $sheet->setTitle('Data Level');
+
+    // Siapkan writer dan nama file
+    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $filename = 'Data_Level_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+    // Set response header agar bisa langsung didownload
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    header('Cache-Control: max-age=0');
+    header('Expires: 0');
+    header('Pragma: public');
+
+    $writer->save('php://output');
+    exit;
+}
+
 
     public function import()
     {

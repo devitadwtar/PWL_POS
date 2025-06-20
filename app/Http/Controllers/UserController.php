@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yajra\DataTables\Facades\DataTables;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class UserController extends Controller
 {
@@ -271,6 +272,55 @@ class UserController extends Controller
         }
         return redirect('/');
     }
+
+
+public function export_excel()
+{
+    $user = UserModel::with('level')->orderBy('level_id')->get();
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Header kolom
+    $sheet->setCellValue('A1', 'No');
+    $sheet->setCellValue('B1', 'Username');
+    $sheet->setCellValue('C1', 'Nama');
+    $sheet->setCellValue('D1', 'Level');
+
+    $sheet->getStyle('A1:D1')->getFont()->setBold(true);
+
+    // Isi data
+    $no = 1;
+    $baris = 2;
+    foreach ($user as $value) {
+        $sheet->setCellValue('A' . $baris, $no++);
+        $sheet->setCellValue('B' . $baris, $value->username);
+        $sheet->setCellValue('C' . $baris, $value->nama);
+        $sheet->setCellValue('D' . $baris, $value->level->level_nama ?? '-');
+        $baris++;
+    }
+
+    // Set kolom auto width
+    foreach (range('A', 'D') as $columnID) {
+        $sheet->getColumnDimension($columnID)->setAutoSize(true);
+    }
+
+    $sheet->setTitle('Data User');
+
+    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $filename = 'Data_User_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+    // Header untuk download file
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    header('Cache-Control: max-age=0');
+    header('Expires: 0');
+    header('Pragma: public');
+
+    $writer->save('php://output');
+    exit;
+}
+
 
     public function import()
     {

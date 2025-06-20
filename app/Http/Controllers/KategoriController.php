@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class KategoriController extends Controller
 {
@@ -199,6 +200,62 @@ class KategoriController extends Controller
 
         return redirect('/');
     }
+
+public function export_excel()
+{
+    // Ambil data kategori dari database
+    $kategori = KategoriModel::select('kategori_kode', 'kategori_nama')
+        ->orderBy('kategori_kode')
+        ->get();
+
+    // Buat spreadsheet baru dan ambil sheet aktif
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Set header kolom di baris pertama
+    $sheet->setCellValue('A1', 'No');
+    $sheet->setCellValue('B1', 'Kode Kategori');
+    $sheet->setCellValue('C1', 'Nama Kategori');
+
+    // Bold header
+    $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+
+    // Isi data dimulai dari baris ke-2
+    $no = 1;
+    $baris = 2;
+    foreach ($kategori as $value) {
+        $sheet->setCellValue('A' . $baris, $no);
+        $sheet->setCellValue('B' . $baris, $value->kategori_kode);
+        $sheet->setCellValue('C' . $baris, $value->kategori_nama);
+
+        $baris++;
+        $no++;
+    }
+
+    // Set lebar kolom otomatis
+    foreach (range('A', 'C') as $columnID) {
+        $sheet->getColumnDimension($columnID)->setAutoSize(true);
+    }
+
+    // Set nama sheet
+    $sheet->setTitle('Data Kategori');
+
+    // Buat writer dan nama file
+    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $filename = 'Data_Kategori_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+    // Set response agar browser langsung download file
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    header('Cache-Control: max-age=0');
+    header('Expires: 0');
+    header('Pragma: public');
+
+    // Simpan file ke output (langsung download)
+    $writer->save('php://output');
+    exit;
+}
+
 
     // ==== FITUR IMPORT ====
     public function import()
