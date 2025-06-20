@@ -9,6 +9,7 @@ use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LevelController extends Controller
 {
@@ -117,6 +118,18 @@ public function export_excel()
     exit;
 }
 
+public function export_pdf()
+{
+    $level = LevelModel::select('level_kode', 'level_nama')
+        ->orderBy('level_nama')
+        ->get();
+
+    $pdf = Pdf::loadView('level.export_pdf', compact('level'));
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setOption('isRemoteEnabled', true);
+
+    return $pdf->stream('Data_Level_' . now()->format('Y-m-d_H-i-s') . '.pdf');
+}
 
     public function import()
     {

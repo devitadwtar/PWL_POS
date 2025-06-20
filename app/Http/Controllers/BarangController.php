@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BarangController extends Controller
 {
@@ -226,6 +227,28 @@ public function export_excel()
     exit;
 }
 
+
+
+public function export_pdf()
+{
+    $barang = BarangModel::select('kategori_id', 'barang_kode', 'barang_nama', 'harga_beli', 'harga_jual')
+        ->orderBy('kategori_id')
+        ->orderBy('barang_kode')
+        ->with('kategori') // relasi ke model kategori
+        ->get();
+
+    $pdf = Pdf::loadView('barang.export_pdf', ['barang' => $barang]);
+    $pdf->setPaper('a4', 'portrait'); // set ukuran kertas dan orientasi
+    $pdf->setOption("isRemoteEnabled", true); // aktifkan gambar dari URL (jika ada)
+
+    return $pdf->stream('Data Barang ' . date('Y-m-d H:i:s') . '.pdf');
+    }
+
+    public function show($id)
+    {
+        $barang = BarangModel::with('kategori')->findOrFail($id);
+        return response()->json($barang);
+    }
 
     public function import()
     {

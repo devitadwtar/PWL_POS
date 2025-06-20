@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SupplierController extends Controller
 {
@@ -211,6 +212,19 @@ class SupplierController extends Controller
         }
         return redirect('/');
     }
+
+    public function export_pdf()
+{
+    $supplier = SupplierModel::select('supplier_kode', 'supplier_nama', 'alamat', 'telepon')
+        ->orderBy('supplier_kode')
+        ->get();
+
+    $pdf = Pdf::loadView('supplier.export_pdf', compact('supplier'));
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setOption('isRemoteEnabled', true);
+
+    return $pdf->stream('Data_Supplier_' . date('Y-m-d_H-i-s') . '.pdf');
+}
 
 public function export_excel()
 {
